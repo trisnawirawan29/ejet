@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 4',
+    'title' => 'Eka Janma, Eka Taru',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -54,10 +54,10 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>Eka Janma</b>, Eka Taru',
     'logo_img' => 'vendor/adminlte/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image opacity-75 shadow',
-    'logo_img_alt' => 'AdminLTE Logo',
+    'logo_img_alt' => 'Eka Janma, Eka Taru',
 
     /*
     |--------------------------------------------------------------------------
@@ -237,6 +237,9 @@ return [
         ['text' => 'Profil Saya', 'route' => 'profile.edit', 'icon' => 'bi bi-person-circle'],
         ['text' => 'Keamanan Akun', 'route' => 'password.edit', 'icon' => 'bi bi-shield-lock'],
         ['text' => 'Manajemen Pengguna', 'route' => 'admin.users.index', 'icon' => 'bi bi-people', 'can' => 'access-admin'],
+        ['text' => 'Token Penanaman', 'route' => 'admin.planting-tokens.index', 'icon' => 'bi bi-qr-code', 'can' => 'access-admin'],
+        ['text' => 'Jenis Tanaman', 'route' => 'admin.plant-types.index', 'icon' => 'bi bi-tree', 'can' => 'access-admin'],
+        ['text' => 'Data Instansi', 'route' => 'admin.agencies.index', 'icon' => 'bi bi-building', 'can' => 'access-admin'],
         ['text' => 'Pengaturan Admin', 'route' => 'admin.settings', 'icon' => 'bi bi-gear', 'can' => 'access-admin'],
     ],
     'filters' => [

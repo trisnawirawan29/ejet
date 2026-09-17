@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class GoogleAuthController extends Controller
 {
     public function redirect(Request $request): RedirectResponse
     {
-        if (! config('services.google.client_id') || ! config('services.google.client_secret')) {
+        if (! $this->googleSetting('client_id') || ! $this->googleSetting('client_secret')) {
             return redirect()->route('login')->with('error', 'Login Google belum dikonfigurasi oleh administrator.');
         }
 
@@ -23,7 +24,7 @@ class GoogleAuthController extends Controller
         $request->session()->put('google_oauth_state', $state);
 
         $query = http_build_query([
-            'client_id' => config('services.google.client_id'),
+            'client_id' => $this->googleSetting('client_id'),
             'redirect_uri' => $this->redirectUri(),
             'response_type' => 'code',
             'scope' => 'openid email profile',
@@ -49,8 +50,8 @@ class GoogleAuthController extends Controller
         try {
             $token = Http::asForm()->post('https://oauth2.googleapis.com/token', [
                 'code' => $request->string('code')->toString(),
-                'client_id' => config('services.google.client_id'),
-                'client_secret' => config('services.google.client_secret'),
+                'client_id' => $this->googleSetting('client_id'),
+                'client_secret' => $this->googleSetting('client_secret'),
                 'redirect_uri' => $this->redirectUri(),
                 'grant_type' => 'authorization_code',
             ])->throw()->json();
@@ -96,6 +97,11 @@ class GoogleAuthController extends Controller
 
     private function redirectUri(): string
     {
-        return url(config('services.google.redirect'));
+        return url($this->googleSetting('redirect', '/auth/google/callback'));
+    }
+
+    private function googleSetting(string $key, mixed $default = null): mixed
+    {
+        return AdminSetting::getValue('google_'.$key, $default ?? config('services.google.'.$key));
     }
 }

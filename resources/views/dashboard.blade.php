@@ -1,47 +1,104 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Eka Janma, Eka Taru')
+
 @push('css')
 <style>
-    .dashboard-welcome { position: relative; overflow: hidden; padding: 1.75rem 2rem; color: #fff; border-radius: 12px; background: #172033; }
-    .dashboard-welcome::after { position: absolute; right: 2rem; bottom: -3.5rem; width: 150px; height: 150px; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; content: ''; }
-    .dashboard-welcome__eyebrow { margin-bottom: .5rem; color: #8ee0c2; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-    .dashboard-welcome h1 { position: relative; z-index: 1; margin: 0 0 .35rem; font-size: clamp(1.45rem, 3vw, 2.15rem); }
-    .dashboard-welcome p { position: relative; z-index: 1; max-width: 640px; margin: 0; color: #c5cfdd; }
-    .dashboard-stat { height: 100%; border: 1px solid #e5eaf1; border-radius: 10px; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.05); }
-    .dashboard-stat__icon { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 10px; font-size: 1.25rem; }
-    .dashboard-stat__number { margin: .75rem 0 .1rem; color: #172033; font-size: 1.8rem; font-weight: 700; line-height: 1; }
-    .dashboard-stat__label { color: #718096; font-size: .85rem; }
-    .dashboard-section-title { color: #172033; font-size: 1.05rem; font-weight: 700; }
-    .dashboard-status { display: flex; align-items: center; gap: .75rem; padding: 1rem; border: 1px solid #e5eaf1; border-radius: 10px; background: #fff; }
-    .dashboard-status__icon { color: #238565; font-size: 1.35rem; }
+    :root { --forest:#176246; --deep:#0c3c2d; --mint:#e8f5ee; --ink:#173129; --muted:#71837c; --line:#e2ebe6; --canvas:#f4f8f5; }
+    .content-wrapper { background:var(--canvas); }.content-header { padding-bottom:.25rem; }.gm-dashboard { color:var(--ink); }
+    .gm-dashboard .card { border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 8px 26px rgba(23,70,50,.055); }.gm-dashboard .card-header { padding:1.15rem 1.3rem; border-bottom:1px solid var(--line); background:transparent; }.gm-dashboard .card-body { padding:1.3rem; }
+    .gm-hero { position:relative; overflow:hidden; padding:1.7rem 2rem; min-height:188px; border-radius:22px; color:white; background:linear-gradient(115deg,#0c3c2d 0%,#176246 58%,#2c8966 100%); }.gm-hero:before,.gm-hero:after { position:absolute; border:1px solid rgba(255,255,255,.13); border-radius:50%; content:''; }.gm-hero:before { right:-40px; bottom:-160px; width:360px; height:360px; }.gm-hero:after { right:80px; bottom:-100px; width:220px; height:220px; }.gm-hero h1,.gm-hero p,.gm-hero .gm-eyebrow { position:relative; z-index:1; }.gm-hero h1 { max-width:600px; margin:.55rem 0 .55rem; font-size:clamp(1.55rem,3vw,2.25rem); letter-spacing:-.04em; }.gm-hero p { max-width:610px; margin:0; color:#d2e8db; font-size:.9rem; }.gm-hero__date { position:absolute; z-index:1; top:1.6rem; right:1.8rem; color:#d2e8db; font-size:.75rem; }.gm-eyebrow { color:#7bc39e; font-size:.68rem; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+    .gm-kpi { height:100%; padding:1.1rem 1.15rem; }.gm-kpi__icon { display:inline-flex; align-items:center; justify-content:center; width:39px; height:39px; border-radius:12px; font-size:1rem; }.gm-kpi__label { margin-top:1rem; color:var(--muted); font-size:.75rem; }.gm-kpi__value { margin:.25rem 0 .3rem; font-size:1.65rem; font-weight:800; letter-spacing:-.05em; }.gm-kpi__detail { color:#27916a; font-size:.7rem; font-weight:700; }.gm-kpi__caption { color:#9baaa3; font-size:.7rem; }.tone-green{color:#21825d;background:#e5f5ec}.tone-blue{color:#3978b7;background:#e8f2fc}.tone-orange{color:#c67b2d;background:#fff1e2}.tone-purple{color:#855db0;background:#f1eafb}
+    .gm-title { margin:0; font-size:.94rem; font-weight:800; }.gm-subtitle { margin:.2rem 0 0; color:var(--muted); font-size:.71rem; }.gm-select { padding:.42rem .65rem; border:1px solid var(--line); border-radius:8px; color:var(--muted); background:#fff; font-size:.72rem; }.gm-chart { width:100%; height:230px; }
+    .gm-bali-map { position:relative; min-height:340px; overflow:hidden; border-radius:14px; background:radial-gradient(circle at 52% 42%,#f9fcf9,#e7f2ea); }.gm-bali-map svg { display:block; width:100%; height:340px; }.gm-bali-map__pin { position:absolute; display:flex; align-items:center; justify-content:center; width:25px; height:25px; transform:translate(-50%,-90%); border:3px solid #fff; border-radius:50% 50% 50% 0; background:#ef8a48; color:#fff; box-shadow:0 4px 10px rgba(90,70,35,.25); font-size:.65rem; font-weight:800; rotate:-45deg; }.gm-bali-map__pin span { rotate:45deg; }.gm-map-label { position:absolute; bottom:1rem; left:1rem; padding:.5rem .7rem; border:1px solid #e2ebe6; border-radius:9px; background:rgba(255,255,255,.9); color:var(--muted); font-size:.68rem; }.gm-map-label strong { color:var(--forest); }
+    .gm-location { display:flex; align-items:center; gap:.7rem; padding:.72rem 0; border-bottom:1px solid var(--line); }.gm-location:last-child{border:0}.gm-dot{width:8px;height:8px;border-radius:50%;background:#35a275;box-shadow:0 0 0 4px #e4f3eb}.gm-location__name{flex:1;font-size:.75rem;font-weight:700}.gm-location__meta{color:var(--muted);font-size:.67rem;text-align:right}.gm-location__meta strong{display:block;color:var(--ink);font-size:.78rem}
+    .gm-agency { display:flex; align-items:center; gap:.75rem; padding:.82rem 0; border-bottom:1px solid var(--line); }.gm-agency:last-child{border:0}.gm-agency__badge { display:flex; align-items:center; justify-content:center; width:35px; height:35px; flex-shrink:0; border-radius:11px; font-size:.8rem; }.gm-agency__name { flex:1; font-size:.73rem; font-weight:700; }.gm-agency__name small { display:block; margin-top:.18rem; color:var(--muted); font-size:.65rem; font-weight:400; }.gm-agency__stats { color:var(--muted); font-size:.64rem; text-align:right; }.gm-agency__stats strong { display:block; color:var(--forest); font-size:.77rem; }
+    .gm-agenda { display:flex; gap:.9rem; align-items:flex-start; padding:.9rem 0; border-bottom:1px solid var(--line); }.gm-agenda:last-child{border:0}.gm-agenda__date { width:43px; flex-shrink:0; padding:.4rem .15rem; border-radius:10px; color:var(--forest); background:var(--mint); text-align:center; }.gm-agenda__date strong{display:block;font-size:1.2rem;line-height:1}.gm-agenda__date small{font-size:.56rem;font-weight:800;letter-spacing:.08em}.gm-agenda__title{margin-bottom:.25rem;font-size:.75rem;font-weight:800}.gm-agenda__meta{color:var(--muted);font-size:.66rem;line-height:1.55}.gm-agenda__meta i{width:13px}.gm-agenda__tag{margin-left:auto;padding:.28rem .48rem;border-radius:20px;color:#3980b9;background:#e9f3fb;font-size:.59rem;font-weight:700;white-space:nowrap}.gm-progress{height:8px;overflow:hidden;border-radius:10px;background:#e8efeb}.gm-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2c9b70,#76c59b)}.gm-insight{border-radius:12px;background:#f0f8f3}.gm-insight__number{color:var(--forest);font-size:2.3rem;font-weight:800;letter-spacing:-.07em}.gm-activity{display:flex;align-items:center;gap:.85rem;padding:.9rem 0;border-bottom:1px solid var(--line)}.gm-activity:last-child{border:0}.gm-activity__icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;font-size:.9rem}.gm-activity__title{margin-bottom:.18rem;font-size:.75rem;font-weight:700}.gm-activity__meta{color:var(--muted);font-size:.66rem}.gm-badge{padding:.3rem .5rem;border-radius:20px;font-size:.6rem;font-weight:700}.gm-badge.green{color:#237b5c;background:#e5f5ec}.gm-badge.blue{color:#3974ad;background:#e7f1fb}.gm-badge.orange{color:#b8732d;background:#fff0df}
+    @media(max-width:767.98px){.gm-hero{padding:1.4rem}.gm-hero__date{position:static;display:block;margin-top:1rem}.gm-hero h1{font-size:1.55rem}.gm-bali-map,.gm-bali-map svg{min-height:280px;height:280px}}
+    .gm-bali-map { height:340px; min-height:340px; }
+    #bali-leaflet-map { width:100%; height:100%; border-radius:14px; z-index:1; }
+    .leaflet-control-attribution { font-size:9px; }
+    .gm-leaflet-pin { display:flex; align-items:center; justify-content:center; width:25px; height:25px; border:3px solid #fff; border-radius:50% 50% 50% 0; background:#ef8a48; color:#fff; box-shadow:0 4px 10px rgba(90,70,35,.25); font-size:10px; font-weight:800; transform:rotate(-45deg); }
+    .gm-leaflet-pin span { transform:rotate(45deg); }
+    .gm-leaflet-legend { padding:7px 10px; border:1px solid #e2ebe6; border-radius:9px; background:rgba(255,255,255,.94); color:#71837c; font-size:11px; box-shadow:0 2px 8px rgba(23,70,50,.1); }
+    .gm-leaflet-legend strong { color:#176246; }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3fRzQv7j0dR2XH+8U7VQ9g0t0p0jM=" crossorigin="" />
+@endpush
+
+@push('js')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const mapHost = document.querySelector('.gm-bali-map');
+
+        if (!mapHost || typeof L === 'undefined') {
+            return;
+        }
+
+        mapHost.innerHTML = '<div id="bali-leaflet-map" aria-label="Peta interaktif lokasi penanaman di Provinsi Bali"></div>';
+
+        const map = L.map('bali-leaflet-map', { zoomControl: true, scrollWheelZoom: false });
+        const baliBounds = L.latLngBounds([[-8.86, 114.42], [-8.00, 115.75]]);
+
+        map.fitBounds(baliBounds, { padding: [18, 18] });
+        map.setMaxBounds(baliBounds.pad(0.55));
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 18,
+        }).addTo(map);
+
+        const locations = @json($dashboard['locations']);
+        const coordinates = [
+            [-8.6905, 115.2126],
+            [-8.7482, 115.1755],
+            [-8.2755, 115.3525],
+            [-8.6786, 115.2304],
+        ];
+        const pinIcon = (index) => L.divIcon({
+            className: '',
+            html: `<div class="gm-leaflet-pin"><span>${index + 1}</span></div>`,
+            iconSize: [25, 25],
+            iconAnchor: [5, 25],
+            popupAnchor: [8, -24],
+        });
+
+        locations.forEach((location, index) => {
+            L.marker(coordinates[index], { icon: pinIcon(index) })
+                .addTo(map)
+                .bindPopup(`<strong>${location.name}</strong><br>${location.trees} pohon &middot; survival rate ${location.rate}`);
+        });
+
+        const legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = () => {
+            const container = L.DomUtil.create('div', 'gm-leaflet-legend');
+            container.innerHTML = '<strong>24 lokasi aktif</strong> &middot; 4 lokasi unggulan';
+            return container;
+        };
+        legend.addTo(map);
+    });
+</script>
 @endpush
 
 @section('content_header')
-    <div class="d-flex justify-content-between align-items-center"><h3 class="mb-0">Dashboard</h3><span class="badge text-bg-primary">{{ auth()->user()->roles->pluck('name')->join(', ') ?: 'Pengguna' }}</span></div>
+<div class="d-flex align-items-center justify-content-between"><div><h3 class="mb-0">Dashboard</h3><span class="text-muted small">Eka Janma, Eka Taru · Provinsi Bali</span></div><span class="badge rounded-pill text-bg-light border px-3 py-2"><i class="bi bi-circle-fill text-success me-1" style="font-size:.45rem;vertical-align:middle"></i> Data diperbarui hari ini</span></div>
 @stop
 
 @section('content')
-    @if (session('success'))<div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
+<div class="gm-dashboard">
+    <section class="gm-hero mb-4"><span class="gm-eyebrow">Eka Janma, Eka Taru · Bali</span><h1>Bersama, kita hijaukan Pulau Dewata.</h1><p>Pantau kontribusi nyata gerakan penanaman pohon di Provinsi Bali untuk merawat hutan, pesisir, dan ruang hijau bagi generasi mendatang.</p><span class="gm-hero__date"><i class="bi bi-calendar3 me-1"></i> Januari — Desember 2026</span></section>
+    <div class="row g-3 mb-4">@foreach($dashboard['summary'] as $stat)<div class="col-6 col-xl-3"><div class="gm-kpi card"><span class="gm-kpi__icon tone-{{ $stat['tone'] }}"><i class="bi {{ $stat['icon'] }}"></i></span><div class="gm-kpi__label">{{ $stat['label'] }}</div><div class="gm-kpi__value">{{ $stat['value'] }}</div><span class="gm-kpi__detail"><i class="bi bi-arrow-up-right me-1"></i>{{ $stat['detail'] }}</span> <span class="gm-kpi__caption">{{ $stat['caption'] }}</span></div></div>@endforeach</div>
 
-    <section class="dashboard-welcome mb-4">
-        <div class="dashboard-welcome__eyebrow">Ejet workspace</div>
-        <h1>Halo, {{ auth()->user()->name }}.</h1>
-        <p>Semua yang Anda perlukan untuk memantau aktivitas workspace ada di sini.</p>
-    </section>
+    <div class="row g-3 mb-4"><div class="col-xl-8"><div class="card h-100"><div class="card-header d-flex justify-content-between"><div><h2 class="gm-title">Pertumbuhan penanaman</h2><p class="gm-subtitle">Jumlah pohon yang berhasil ditanam per bulan</p></div><select class="gm-select" aria-label="Periode grafik"><option>2026</option><option>2025</option></select></div><div class="card-body"><div class="d-flex align-items-center gap-2 mb-2"><span style="width:8px;height:8px;border-radius:50%;background:#2d9b70"></span><span class="small text-muted">Pohon tertanam</span><strong class="ms-auto" style="font-size:.78rem">12.480 pohon</strong></div><svg class="gm-chart" viewBox="0 0 760 230" role="img" aria-label="Grafik time series penanaman pohon di Bali"><g stroke="#e9efeb"><line x1="45" y1="20" x2="735" y2="20"/><line x1="45" y1="70" x2="735" y2="70"/><line x1="45" y1="120" x2="735" y2="120"/><line x1="45" y1="170" x2="735" y2="170"/></g><g fill="#97a69f" font-size="10" text-anchor="end"><text x="38" y="24">3k</text><text x="38" y="74">2k</text><text x="38" y="124">1k</text><text x="38" y="174">0</text></g><path d="M50 102 L145 124 L240 83 L335 111 L430 58 L525 85 L620 37 L715 57 L715 170 L50 170 Z" fill="#57b889" fill-opacity=".16"/><polyline points="50,102 145,124 240,83 335,111 430,58 525,85 620,37 715,57" fill="none" stroke="#2d9b70" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/><g fill="#fff" stroke="#2d9b70" stroke-width="3"><circle cx="50" cy="102" r="4"/><circle cx="145" cy="124" r="4"/><circle cx="240" cy="83" r="4"/><circle cx="335" cy="111" r="4"/><circle cx="430" cy="58" r="4"/><circle cx="525" cy="85" r="4"/><circle cx="620" cy="37" r="4"/><circle cx="715" cy="57" r="4"/></g><g fill="#97a69f" font-size="10" text-anchor="middle"><text x="50" y="202">Jan</text><text x="145" y="202">Feb</text><text x="240" y="202">Mar</text><text x="335" y="202">Apr</text><text x="430" y="202">Mei</text><text x="525" y="202">Jun</text><text x="620" y="202">Jul</text><text x="715" y="202">Agu</text></g></svg></div></div></div><div class="col-xl-4"><div class="card h-100"><div class="card-header"><h2 class="gm-title">Progress target tahunan</h2><p class="gm-subtitle">Target penanaman pohon 2026</p></div><div class="card-body d-flex flex-column justify-content-center"><div class="d-flex align-items-end gap-2 mb-2"><span style="font-size:2.5rem;font-weight:800;letter-spacing:-.07em;color:var(--forest)">{{ $dashboard['target']['percentage'] }}%</span><span class="text-muted small mb-2">tercapai</span></div><div class="gm-progress mb-2"><span style="width:{{ $dashboard['target']['percentage'] }}%"></span></div><div class="d-flex justify-content-between text-muted" style="font-size:.7rem"><span>{{ $dashboard['target']['current'] }} pohon</span><span>Target {{ $dashboard['target']['goal'] }}</span></div><div class="gm-insight mt-4 p-3"><div class="d-flex gap-2"><i class="bi bi-stars text-success"></i><div><strong style="font-size:.75rem">On track!</strong><p class="mb-0 mt-1 text-muted" style="font-size:.7rem">Target diproyeksikan tercapai pada November 2026.</p></div></div></div></div></div></div></div>
 
-    @if ($statistics)
-        <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="dashboard-section-title mb-0">Ringkasan pengguna</h2><a href="{{ route('admin.users.index') }}" class="small text-decoration-none">Kelola pengguna <i class="bi bi-arrow-right"></i></a></div>
-        <div class="row g-3 mb-4">
-            <div class="col-sm-6 col-xl-3"><div class="dashboard-stat p-3"><span class="dashboard-stat__icon text-primary bg-primary-subtle"><i class="bi bi-people"></i></span><div class="dashboard-stat__number">{{ $statistics['total'] }}</div><div class="dashboard-stat__label">Total pengguna</div></div></div>
-            <div class="col-sm-6 col-xl-3"><div class="dashboard-stat p-3"><span class="dashboard-stat__icon text-success bg-success-subtle"><i class="bi bi-person-check"></i></span><div class="dashboard-stat__number">{{ $statistics['verified'] }}</div><div class="dashboard-stat__label">Pengguna terverifikasi</div></div></div>
-            <div class="col-sm-6 col-xl-3"><div class="dashboard-stat p-3"><span class="dashboard-stat__icon text-warning bg-warning-subtle"><i class="bi bi-person-exclamation"></i></span><div class="dashboard-stat__number">{{ $statistics['pending'] }}</div><div class="dashboard-stat__label">Menunggu verifikasi</div></div></div>
-            <div class="col-sm-6 col-xl-3"><div class="dashboard-stat p-3"><span class="dashboard-stat__icon text-secondary bg-secondary-subtle"><i class="bi bi-person-slash"></i></span><div class="dashboard-stat__number">{{ $statistics['inactive'] }}</div><div class="dashboard-stat__label">Pengguna nonaktif</div></div></div>
-        </div>
-    @else
-        <div class="dashboard-status mb-4"><i class="bi bi-shield-check dashboard-status__icon"></i><div><strong>Akun Anda aktif</strong><div class="small text-muted">Anda dapat menggunakan seluruh fitur yang tersedia untuk role Anda.</div></div></div>
+    <div class="row g-3 mb-4"><div class="col-xl-7"><div class="card h-100"><div class="card-header"><h2 class="gm-title">Peta sebaran penanaman Bali</h2><p class="gm-subtitle">Pulau Bali dan titik lokasi program aktif</p></div><div class="card-body"><div class="gm-bali-map"><svg viewBox="0 0 720 360" role="img" aria-label="Siluet Pulau Bali dengan pin lokasi penanaman"><defs><filter id="islandShadow"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#98b7a0" flood-opacity=".35"/></filter></defs><path d="M91 189 C112 178 127 166 144 159 C160 151 172 137 193 133 C216 129 227 113 248 111 C273 109 285 96 309 99 C333 101 348 111 370 106 C393 100 412 105 432 115 C452 125 468 124 489 121 C512 117 525 129 543 139 C561 149 580 155 596 170 C608 182 625 188 631 202 C636 214 621 222 606 226 C584 233 570 238 547 240 C526 242 511 253 489 257 C469 261 446 258 428 270 C411 282 399 296 375 298 C353 300 340 315 318 321 C298 326 282 318 267 309 C248 297 234 294 213 296 C192 299 179 291 163 281 C149 272 136 264 119 258 C101 251 86 239 72 229 C60 220 50 208 57 199 C64 194 77 193 91 189 Z" fill="#a9d2b2" stroke="#78ad89" stroke-width="3" filter="url(#islandShadow)"/><path d="M114 198 C174 178 203 206 256 177 S350 161 402 184 S497 181 573 209" fill="none" stroke="#d9eedc" stroke-width="10" stroke-linecap="round" opacity=".9"/><path d="M183 140 C204 166 210 207 201 249 M314 110 C333 153 324 202 347 239 M467 127 C449 168 463 209 444 257" fill="none" stroke="#8ec19a" stroke-width="3" opacity=".7"/><path d="M580 273 C596 260 617 264 629 275 C638 283 630 294 616 297 C601 300 587 293 580 283 Z" fill="#9fc9a9" stroke="#78ad89" stroke-width="2"/><g fill="#6da77e" opacity=".65"><circle cx="140" cy="218" r="4"/><circle cx="258" cy="139" r="4"/><circle cx="385" cy="260" r="4"/><circle cx="532" cy="187" r="4"/><circle cx="483" cy="226" r="4"/></g><text x="330" y="185" fill="#4f9065" font-size="18" font-weight="700" text-anchor="middle" opacity=".8">PROVINSI BALI</text></svg>@foreach($dashboard['locations'] as $index => $location)<span class="gm-bali-map__pin" style="left:{{ $location['x'] }}%;top:{{ $location['y'] }}%" title="{{ $location['name'] }}"><span>{{ $index + 1 }}</span></span>@endforeach<div class="gm-map-label"><i class="bi bi-geo-alt-fill text-success me-1"></i><strong>24 lokasi aktif</strong> · 4 unggulan</div></div></div></div></div><div class="col-xl-5"><div class="card h-100"><div class="card-header d-flex justify-content-between"><div><h2 class="gm-title">Lokasi unggulan</h2><p class="gm-subtitle">Kontribusi terbesar bulan ini</p></div><span class="badge rounded-pill text-bg-success-subtle text-success">Bali</span></div><div class="card-body pt-2">@foreach($dashboard['locations'] as $location)<div class="gm-location"><span class="gm-dot"></span><span class="gm-location__name">{{ $location['name'] }}</span><span class="gm-location__meta"><strong>{{ $location['trees'] }}</strong>{{ $location['rate'] }} hidup</span></div>@endforeach</div></div></div></div>
+
+    <div class="row g-3 mb-4"><div class="col-xl-7"><div class="card h-100"><div class="card-header d-flex justify-content-between"><div><h2 class="gm-title">Perangkat Daerah terlibat</h2><p class="gm-subtitle">Kolaborasi lintas instansi dalam gerakan penanaman</p></div><span class="text-success small fw-bold">{{ count($dashboard['agencies']) }} instansi</span></div><div class="card-body py-2">@foreach($dashboard['agencies'] as $agency)<div class="gm-agency"><span class="gm-agency__badge tone-{{ $agency['tone'] }}"><i class="bi bi-building"></i></span><span class="gm-agency__name">{{ $agency['short_name'] }}<small>{{ $agency['name'] }}</small></span><span class="gm-agency__stats"><strong>{{ $agency['trees'] }} pohon</strong>{{ $agency['people'] }} pegawai</span></div>@endforeach</div></div></div><div class="col-xl-5"><div class="card h-100"><div class="card-header d-flex justify-content-between"><div><h2 class="gm-title">Agenda pelaksanaan</h2><p class="gm-subtitle">Kegiatan terdekat gerakan Bali</p></div><a href="#" class="small text-success text-decoration-none">Kalender</a></div><div class="card-body py-2">@foreach($dashboard['agenda'] as $item)<div class="gm-agenda"><div class="gm-agenda__date"><strong>{{ $item['date'] }}</strong><small>{{ $item['month'] }}</small></div><div class="flex-grow-1"><div class="gm-agenda__title">{{ $item['title'] }}</div><div class="gm-agenda__meta"><div><i class="bi bi-geo-alt"></i>{{ $item['location'] }}</div><div><i class="bi bi-people"></i>{{ $item['participants'] }}</div></div></div><span class="gm-agenda__tag">{{ $loop->first ? 'Terdekat' : 'Agenda' }}</span></div>@endforeach</div></div></div></div>
+
+    <div class="row g-3"><div class="col-xl-7"><div class="card"><div class="card-header d-flex justify-content-between"><div><h2 class="gm-title">Aktivitas terbaru</h2><p class="gm-subtitle">Perkembangan program penanaman terakhir</p></div><a href="#" class="small text-success text-decoration-none">Lihat riwayat</a></div><div class="card-body py-2">@foreach($dashboard['activities'] as $activity)<div class="gm-activity"><span class="gm-activity__icon tone-{{ $activity['tone'] }}"><i class="bi bi-tree-fill"></i></span><div class="flex-grow-1"><div class="gm-activity__title">{{ $activity['title'] }}</div><div class="gm-activity__meta">{{ $activity['meta'] }}</div></div><span class="gm-badge {{ $activity['tone'] }}">{{ $activity['status'] }}</span></div>@endforeach</div></div></div><div class="col-xl-5"><div class="card h-100"><div class="card-header"><h2 class="gm-title">Kesehatan pohon</h2><p class="gm-subtitle">Rata-rata survival rate per jenis</p></div><div class="card-body"><div class="d-flex justify-content-between mb-3"><div><div class="gm-insight__number">87,6%</div><span class="text-muted" style="font-size:.72rem">survival rate keseluruhan</span></div><i class="bi bi-heart-pulse text-success fs-3"></i></div><div class="d-flex justify-content-between mb-1" style="font-size:.72rem"><span>Mahoni</span><strong>92%</strong></div><div class="gm-progress mb-3"><span style="width:92%"></span></div><div class="d-flex justify-content-between mb-1" style="font-size:.72rem"><span>Trembesi</span><strong>86%</strong></div><div class="gm-progress mb-3"><span style="width:86%"></span></div><div class="d-flex justify-content-between mb-1" style="font-size:.72rem"><span>Mangrove</span><strong>81%</strong></div><div class="gm-progress"><span style="width:81%"></span></div></div></div></div></div>
+    @if ($userStatistics)
+        <div class="card mt-3"><div class="card-body py-3"><div class="d-flex flex-wrap align-items-center gap-3"><strong class="small me-auto"><i class="bi bi-shield-check text-success me-1"></i> Ringkasan akses admin</strong><span class="text-muted small">{{ $userStatistics['total'] }} pengguna</span><span class="text-success small">Pengguna terverifikasi: {{ $userStatistics['verified'] }}</span><span class="text-warning small">Menunggu verifikasi: {{ $userStatistics['pending'] }}</span><span class="text-muted small">Pengguna nonaktif: {{ $userStatistics['inactive'] }}</span></div></div></div>
     @endif
-
-    <div class="row g-3"><div class="col-lg-7"><x-adminlte-card title="Aktivitas workspace" icon="bi bi-activity" theme="primary"><div class="d-flex align-items-center gap-3"><i class="bi bi-check-circle-fill text-success fs-4"></i><div><strong>Sistem berjalan normal</strong><p class="text-muted mb-0 small">Data dan autentikasi aplikasi siap digunakan.</p></div></div></x-adminlte-card></div><div class="col-lg-5"><x-adminlte-card title="Akses cepat" icon="bi bi-lightning" theme="warning"><div class="d-flex flex-wrap gap-2"><a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-person me-1"></i>Edit profile</a>@if ($statistics)<a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-people me-1"></i>Pengguna</a>@endif</div></x-adminlte-card></div></div>
+</div>
 @stop
