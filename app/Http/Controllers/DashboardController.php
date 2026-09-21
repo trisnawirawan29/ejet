@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PlantingAccessToken;
+use App\Models\PlantingRecord;
 use App\Models\User;
 use Illuminate\View\View;
 
@@ -21,41 +23,60 @@ class DashboardController extends Controller
             ];
         }
 
+        $records = PlantingRecord::query()
+            ->latest('planted_at')
+            ->get(['name', 'email', 'organization', 'planted_at', 'plant_type', 'tree_count', 'latitude', 'longitude', 'location_name', 'created_at']);
+        $activeTokens = PlantingAccessToken::query()->where('is_active', true)->count();
+        $participantCount = $records->map(fn (PlantingRecord $record): string => $record->email ?: $record->name)->unique()->count();
+        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $monthlyRecords = $records->filter(fn (PlantingRecord $record): bool => $record->planted_at->year === now()->year)->groupBy(fn (PlantingRecord $record): int => $record->planted_at->month);
+        $monthly = collect(range(1, 12))->map(fn (int $month): array => [
+            'month' => $monthNames[$month - 1],
+            'value' => $monthlyRecords->get($month, collect())->sum('tree_count'),
+        ])->all();
+        $locations = $records->filter(fn (PlantingRecord $record): bool => filled($record->location_name))->groupBy('location_name')->map(function ($locationRecords, string $name): array {
+            $firstRecord = $locationRecords->first();
+
+            return [
+                'name' => $name,
+                'trees' => $locationRecords->sum('tree_count'),
+                'records' => $locationRecords->count(),
+                'latitude' => (float) $firstRecord->latitude,
+                'longitude' => (float) $firstRecord->longitude,
+            ];
+        })->sortByDesc('trees')->values()->all();
+        $agencies = $records->filter(fn (PlantingRecord $record): bool => filled($record->organization))->groupBy('organization')->map(function ($agencyRecords, string $name): array {
+            return [
+                'name' => $name,
+                'short_name' => $name,
+                'trees' => $agencyRecords->sum('tree_count'),
+                'people' => $agencyRecords->map(fn (PlantingRecord $record): string => $record->email ?: $record->name)->unique()->count(),
+                'tone' => 'green',
+            ];
+        })->sortByDesc('trees')->values()->all();
+        $activities = $records->take(5)->map(fn (PlantingRecord $record): array => [
+            'title' => "Penanaman {$record->plant_type} oleh {$record->name}",
+            'meta' => $record->planted_at->format('d M Y').' · '.$record->tree_count.' pohon',
+            'status' => 'Tercatat',
+            'tone' => 'green',
+        ])->all();
+        $totalTrees = $records->sum('tree_count');
+
         $dashboard = [
             'summary' => [
-                ['label' => 'Pohon tertanam', 'value' => '12.480', 'detail' => '+18,4%', 'caption' => 'dari target tahunan', 'icon' => 'bi-tree-fill', 'tone' => 'green'],
-                ['label' => 'Pegawai terlibat', 'value' => '1.286', 'detail' => '+12,7%', 'caption' => 'pegawai aktif', 'icon' => 'bi-people-fill', 'tone' => 'blue'],
-                ['label' => 'Lokasi penanaman', 'value' => '24', 'detail' => '+4', 'caption' => 'lokasi baru tahun ini', 'icon' => 'bi-geo-alt-fill', 'tone' => 'orange'],
-                ['label' => 'Survival rate', 'value' => '87,6%', 'detail' => '+3,2%', 'caption' => 'lebih baik dari tahun lalu', 'icon' => 'bi-heart-fill', 'tone' => 'purple'],
+                ['label' => 'Pohon tertanam', 'value' => number_format($totalTrees, 0, ',', '.'), 'detail' => '', 'caption' => 'dari seluruh data masuk', 'icon' => 'bi-tree-fill', 'tone' => 'green'],
+                ['label' => 'Peserta', 'value' => number_format($participantCount, 0, ',', '.'), 'detail' => '', 'caption' => 'peserta tercatat', 'icon' => 'bi-people-fill', 'tone' => 'blue'],
+                ['label' => 'Lokasi penanaman', 'value' => number_format(count($locations), 0, ',', '.'), 'detail' => '', 'caption' => 'lokasi dari data masuk', 'icon' => 'bi-geo-alt-fill', 'tone' => 'orange'],
+                ['label' => 'Token aktif', 'value' => number_format($activeTokens, 0, ',', '.'), 'detail' => '', 'caption' => 'akses publik aktif', 'icon' => 'bi-qr-code', 'tone' => 'purple'],
             ],
-            'monthly' => [
-                ['month' => 'Jan', 'value' => 1420], ['month' => 'Feb', 'value' => 980], ['month' => 'Mar', 'value' => 1560],
-                ['month' => 'Apr', 'value' => 1080], ['month' => 'Mei', 'value' => 1840], ['month' => 'Jun', 'value' => 1420],
-                ['month' => 'Jul', 'value' => 2180], ['month' => 'Agu', 'value' => 2000], ['month' => 'Sep', 'value' => 0],
-            ],
-            'locations' => [
-                ['name' => 'Denpasar Selatan', 'trees' => '3.240', 'rate' => '91%', 'x' => 35, 'y' => 40],
-                ['name' => 'Hutan Mangrove Ngurah Rai', 'trees' => '2.180', 'rate' => '88%', 'x' => 57, 'y' => 31],
-                ['name' => 'Kawasan Bedugul', 'trees' => '1.860', 'rate' => '84%', 'x' => 72, 'y' => 52],
-                ['name' => 'Taman Hutan Raya Ngurah Rai', 'trees' => '2.740', 'rate' => '89%', 'x' => 43, 'y' => 66],
-            ],
-            'activities' => [
-                ['title' => 'Penanaman mangrove di Denpasar', 'meta' => '12 Sep 2026 · 240 pegawai', 'status' => 'Selesai', 'tone' => 'green'],
-                ['title' => 'Monitoring kawasan Bedugul', 'meta' => '10 Sep 2026 · 86 pegawai', 'status' => 'Berjalan', 'tone' => 'blue'],
-                ['title' => 'Perawatan hutan kota Gianyar', 'meta' => '08 Sep 2026 · 54 pegawai', 'status' => 'Terjadwal', 'tone' => 'orange'],
-            ],
-            'agencies' => [
-                ['name' => 'Dinas Kehutanan dan Lingkungan Hidup', 'short_name' => 'DLHK Provinsi Bali', 'trees' => '4.860', 'people' => '428', 'tone' => 'green'],
-                ['name' => 'Dinas Pertanian dan Ketahanan Pangan', 'short_name' => 'Distanpangan Bali', 'trees' => '2.940', 'people' => '286', 'tone' => 'orange'],
-                ['name' => 'BPDAS Unda Anyar', 'short_name' => 'BPDAS Unda Anyar', 'trees' => '2.480', 'people' => '194', 'tone' => 'blue'],
-                ['name' => 'Perumda dan Desa Adat', 'short_name' => 'Perumda & Desa Adat', 'trees' => '2.200', 'people' => '378', 'tone' => 'purple'],
-            ],
-            'agenda' => [
-                ['date' => '18', 'month' => 'SEP', 'title' => 'Penanaman serentak mangrove', 'location' => 'Tahura Ngurah Rai, Denpasar', 'participants' => '150 pegawai', 'tone' => 'green'],
-                ['date' => '24', 'month' => 'SEP', 'title' => 'Gerakan tanam pohon hulu', 'location' => 'Kecamatan Kintamani, Bangli', 'participants' => '90 pegawai', 'tone' => 'orange'],
-                ['date' => '02', 'month' => 'OKT', 'title' => 'Monitoring survival rate triwulan', 'location' => 'Seluruh lokasi program Bali', 'participants' => 'Tim monitoring', 'tone' => 'blue'],
-            ],
-            'target' => ['current' => '12.480', 'goal' => '15.000', 'percentage' => 83],
+            'monthly' => $monthly,
+            'locations' => $locations,
+            'activities' => $activities,
+            'agencies' => $agencies,
+            'agenda' => [],
+            'target' => null,
+            'totalTrees' => $totalTrees,
+            'year' => now()->year,
         ];
 
         return view('dashboard', compact('userStatistics', 'dashboard'));

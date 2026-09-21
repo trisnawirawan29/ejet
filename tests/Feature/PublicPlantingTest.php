@@ -24,11 +24,16 @@ class PublicPlantingTest extends TestCase
         $accessToken = PlantingAccessToken::create([
             'token_hash' => hash('sha256', $token),
             'label' => 'Form demo Bali',
+            'event_date' => '2026-09-20',
+            'location_name' => 'Tahura Ngurah Rai',
         ]);
 
         $this->get(route('planting.form', ['token' => $token]))
             ->assertOk()
-            ->assertSee('Catat penanaman pohon');
+            ->assertSee('Catat penanaman pohon')
+            ->assertSee('20 Sep 2026')
+            ->assertSee('Tahura Ngurah Rai')
+            ->assertSee('id="submit-contribution" class="btn-submit" disabled', false);
 
         $this->post(route('planting.store', ['token' => $token]), [
             'name' => 'Made Santika',
@@ -44,7 +49,13 @@ class PublicPlantingTest extends TestCase
             'location_name' => 'Tahura Ngurah Rai',
             'photo' => UploadedFile::fake()->create('mangrove.jpg', 100, 'image/jpeg'),
             'consent' => '1',
-        ])->assertRedirect(route('planting.form', ['token' => $token]));
+        ])->assertRedirect(route('planting.thanks', ['token' => $token]));
+
+        $this->get(route('planting.thanks', ['token' => $token]))
+            ->assertOk()
+            ->assertSee('Terima kasih telah berpartisipasi')
+            ->assertSee('Made Santika')
+            ->assertSee('25 pohon');
 
         $this->assertDatabaseHas('planting_records', [
             'planting_access_token_id' => $accessToken->id,
@@ -53,5 +64,29 @@ class PublicPlantingTest extends TestCase
             'tree_count' => 25,
         ]);
         $this->assertNotNull($accessToken->fresh()->last_used_at);
+    }
+
+    public function test_existing_planting_date_is_used_when_token_event_date_is_empty(): void
+    {
+        $token = 'BALI-EKATARU-2026';
+        $accessToken = PlantingAccessToken::create([
+            'token_hash' => hash('sha256', $token),
+            'label' => 'Form demo Bali',
+            'location_name' => 'Tahura Ngurah Rai',
+        ]);
+        $accessToken->plantingRecords()->create([
+            'name' => 'Made Santika',
+            'phone' => '081234567890',
+            'planted_at' => '2026-09-20',
+            'plant_type' => 'Mangrove',
+            'tree_count' => 1,
+            'latitude' => '-8.6905000',
+            'longitude' => '115.2126000',
+            'photo_path' => 'planting-documents/example.jpg',
+        ]);
+
+        $this->get(route('planting.form', ['token' => $token]))
+            ->assertOk()
+            ->assertSee('20 Sep 2026');
     }
 }

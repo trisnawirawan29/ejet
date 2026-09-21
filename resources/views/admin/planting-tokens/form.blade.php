@@ -18,6 +18,11 @@
         @error('label')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-6">
+        <label class="form-label" for="token-event-date">Tanggal kegiatan</label>
+        <input id="token-event-date" type="date" name="event_date" value="{{ old('event_date', isset($token) && $token->event_date ? $token->event_date->format('Y-m-d') : '') }}" class="form-control @error('event_date') is-invalid @enderror" required>
+        @error('event_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+    </div>
+    <div class="col-md-6">
         <label class="form-label" for="token-expires-at">Berlaku sampai <span class="text-muted fw-normal">(opsional)</span></label>
         <input id="token-expires-at" type="datetime-local" name="expires_at" value="{{ old('expires_at', isset($token) && $token->expires_at ? $token->expires_at->format('Y-m-d\TH:i') : '') }}" class="form-control @error('expires_at') is-invalid @enderror">
         @error('expires_at')<div class="invalid-feedback">{{ $message }}</div>@enderror

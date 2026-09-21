@@ -12,7 +12,14 @@ class AdminSettingsController extends Controller
 {
     public function edit(): View
     {
-        $keys = ['google_maps_api_key', 'google_client_id', 'google_client_secret', 'google_redirect_uri'];
+        $keys = [
+            'application_name',
+            'application_tagline',
+            'google_maps_api_key',
+            'google_client_id',
+            'google_client_secret',
+            'google_redirect_uri',
+        ];
         $settings = AdminSetting::query()->whereIn('key', $keys)->get()->keyBy('key');
 
         return view('admin.settings', [

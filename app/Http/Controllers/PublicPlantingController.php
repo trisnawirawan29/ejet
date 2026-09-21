@@ -29,8 +29,21 @@ class PublicPlantingController extends Controller
         $accessToken = $this->resolveAccessToken($token);
         $plantTypes = PlantType::where('is_active', true)->orderBy('name')->pluck('name');
         $agencies = Agency::where('is_active', true)->orderBy('name')->get();
+        $eventDate = $accessToken->event_date ?? $accessToken->plantingRecords()->oldest('planted_at')->first()?->planted_at;
 
-        return view('planting.create', compact('token', 'accessToken', 'plantTypes', 'agencies'));
+        return view('planting.create', compact('token', 'accessToken', 'plantTypes', 'agencies', 'eventDate'));
+    }
+
+    public function thanks(string $token): View|RedirectResponse
+    {
+        $accessToken = $this->resolveAccessToken($token);
+        $plantingSummary = session('plantingSummary');
+
+        if (! is_array($plantingSummary)) {
+            return redirect()->route('planting.form', ['token' => $token]);
+        }
+
+        return view('planting.thanks', compact('accessToken', 'plantingSummary'));
     }
 
     public function store(StorePlantingRecordRequest $request, string $token): RedirectResponse
@@ -41,10 +54,14 @@ class PublicPlantingController extends Controller
         unset($validated['photo'], $validated['consent']);
         $validated['planting_access_token_id'] = $accessToken->id;
 
-        $accessToken->plantingRecords()->create($validated);
+        $plantingRecord = $accessToken->plantingRecords()->create($validated);
         $accessToken->update(['last_used_at' => now()]);
 
-        return redirect()->route('planting.form', ['token' => $token])->with('success', 'Data penanaman berhasil dicatat. Terima kasih atas kontribusi Anda untuk Bali.');
+        return redirect()->route('planting.thanks', ['token' => $token])->with('plantingSummary', [
+            'name' => $plantingRecord->name,
+            'treeCount' => $plantingRecord->tree_count,
+            'plantType' => $plantingRecord->plant_type,
+        ]);
     }
 
     private function resolveAccessToken(string $token): PlantingAccessToken

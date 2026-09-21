@@ -1,6 +1,6 @@
 @extends('adminlte::auth.auth-master', ['authType' => 'register'])
 @section('auth_body')
-    <p class="register-box-msg">Buat akun baru</p>
+    <p class="register-box-msg">{{ $applicationName }} · Buat akun baru</p>
     @if (session('error'))<div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
     <a href="{{ route('google.redirect') }}" class="btn btn-outline-dark w-100 mb-3"><i class="bi bi-google me-2"></i>Daftar dengan Google</a>
     <div class="d-flex align-items-center gap-2 mb-3 text-muted small"><hr class="flex-grow-1"><span>atau isi data berikut</span><hr class="flex-grow-1"></div>

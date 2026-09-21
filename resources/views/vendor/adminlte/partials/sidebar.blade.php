@@ -13,7 +13,7 @@
                      class="{{ config('adminlte.logo_img_class', 'brand-image opacity-75 shadow') }}">
             @endif
             <span class="brand-text {{ config('adminlte.classes_brand_text', 'fw-light') }}">
-                {!! config('adminlte.logo', '<b>Admin</b>LTE') !!}
+                {{ $applicationName }}
             </span>
         </a>
     </div>

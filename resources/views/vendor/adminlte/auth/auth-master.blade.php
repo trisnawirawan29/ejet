@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title }}</title>
+    <title>{{ $title }} · {{ $applicationName }}</title>
     {{-- Bootstrap Icons ship via the Vite bundle (imported in resources/css/adminlte.css) --}}
     @vite(['resources/css/adminlte.css', 'resources/js/adminlte.js'])
     @include('adminlte::partials.theme-colors')
@@ -32,7 +32,8 @@
                                  height="{{ config('adminlte.auth_logo.img.height') }}"
                              @endif>
                     @endif
-                    {!! config('adminlte.logo', '<b>Admin</b>LTE') !!}
+                    {{ $applicationName }}
+                    <small class="d-block text-muted" style="font-size:.45em">{{ $applicationTagline }}</small>
                 </a>
             </div>
             <div class="card-body">

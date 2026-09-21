@@ -28,6 +28,30 @@ class AdminSettingsTest extends TestCase
         $this->assertNotSame('maps-key-test', $setting->getRawOriginal('value'));
     }
 
+    public function test_admin_can_update_application_name_and_tagline(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'application_name' => 'Ruang Hijau Bali',
+            'application_tagline' => 'Menanam hari ini untuk esok yang lebih teduh',
+        ])->assertRedirect();
+
+        $this->assertSame('Ruang Hijau Bali', AdminSetting::getValue('application_name'));
+        $this->assertSame('Menanam hari ini untuk esok yang lebih teduh', AdminSetting::getValue('application_tagline'));
+    }
+
+    public function test_application_branding_is_available_on_login_page(): void
+    {
+        AdminSetting::create(['key' => 'application_name', 'value' => 'Ruang Hijau Bali']);
+        AdminSetting::create(['key' => 'application_tagline', 'value' => 'Tagline pilihan admin']);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('Ruang Hijau Bali')
+            ->assertSee('Tagline pilihan admin');
+    }
+
     public function test_non_admin_cannot_update_service_settings(): void
     {
         $user = User::factory()->create();

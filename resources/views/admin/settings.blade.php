@@ -26,7 +26,30 @@
         <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div>
     @endif
 
-    <div class="alert alert-info border-0"><i class="bi bi-shield-lock me-2"></i>API key dan secret disimpan terenkripsi di database. Kosongkan field untuk menghapus nilai dari database dan kembali menggunakan fallback `.env`.</div>
+    <div class="alert alert-info border-0"><i class="bi bi-info-circle me-2"></i>Nama aplikasi dan tagline akan tampil pada halaman aplikasi. API key dan secret disimpan terenkripsi di database.</div>
+
+    <div class="card settings-card mb-4">
+        <div class="card-header"><h5 class="mb-1"><i class="bi bi-type text-success me-2"></i>Identitas aplikasi</h5><p class="settings-note mb-0">Atur nama dan kalimat singkat yang digunakan untuk memperkenalkan aplikasi.</p></div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('admin.settings.update') }}">
+                @csrf
+                @method('PUT')
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="application-name">Nama aplikasi</label>
+                        <input id="application-name" name="application_name" value="{{ old('application_name', $settings->get('application_name')?->value ?? $applicationName) }}" class="form-control @error('application_name') is-invalid @enderror" maxlength="255" required>
+                        @error('application_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="application-tagline">Tagline</label>
+                        <input id="application-tagline" name="application_tagline" value="{{ old('application_tagline', $settings->get('application_tagline')?->value ?? $applicationTagline) }}" class="form-control @error('application_tagline') is-invalid @enderror" maxlength="500" required>
+                        @error('application_tagline')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-4"><button class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Simpan identitas</button></div>
+            </form>
+        </div>
+    </div>
 
     <div class="card settings-card">
         <div class="card-header"><h5 class="mb-1"><i class="bi bi-plug text-success me-2"></i>Integrasi Google</h5><p class="settings-note mb-0">Konfigurasi Google Maps dan Login dengan Google.</p></div>

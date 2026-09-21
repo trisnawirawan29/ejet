@@ -39,6 +39,25 @@ class PlantingAccessTokenController extends Controller
         return view('admin.planting-tokens.show', ['token' => $plantingToken->loadCount('plantingRecords')]);
     }
 
+    public function records(PlantingAccessToken $plantingToken): View
+    {
+        $records = $plantingToken->plantingRecords()->latest()->get();
+
+        return view('admin.planting-tokens.records', [
+            'token' => $plantingToken->loadCount('plantingRecords'),
+            'records' => $records,
+            'summary' => [
+                'entries' => $records->count(),
+                'trees' => $records->sum('tree_count'),
+                'participants' => $records->unique('name')->count(),
+                'plantTypes' => $records->unique('plant_type')->count(),
+            ],
+            'plantTypeSummary' => $records->groupBy('plant_type')
+                ->map(fn ($plantingRecords): int => $plantingRecords->sum('tree_count'))
+                ->sortDesc(),
+        ]);
+    }
+
     public function edit(PlantingAccessToken $plantingToken): View
     {
         return view('admin.planting-tokens.edit', ['token' => $plantingToken, 'googleMapsApiKey' => AdminSetting::getValue('google_maps_api_key', config('services.google_maps.key'))]);
@@ -67,6 +86,7 @@ class PlantingAccessTokenController extends Controller
     {
         return $request->validate([
             'label' => ['required', 'string', 'max:120'],
+            'event_date' => ['required', 'date'],
             'location_name' => ['required', 'string', 'max:180'],
             'latitude' => ['required', 'numeric', 'between:-9.2,-8.0'],
             'longitude' => ['required', 'numeric', 'between:114.0,116.0'],

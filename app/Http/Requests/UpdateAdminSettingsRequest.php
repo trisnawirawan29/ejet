@@ -22,6 +22,8 @@ class UpdateAdminSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'application_name' => ['nullable', 'string', 'max:255'],
+            'application_tagline' => ['nullable', 'string', 'max:500'],
             'google_maps_api_key' => ['nullable', 'string', 'max:255'],
             'google_client_id' => ['nullable', 'string', 'max:255'],
             'google_client_secret' => ['nullable', 'string', 'max:255'],

@@ -26,6 +26,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/tanam', [PublicPlantingController::class, 'entry'])->name('planting.entry');
 Route::post('/tanam', [PublicPlantingController::class, 'enter'])->name('planting.enter');
 Route::get('/tanam/{token}', [PublicPlantingController::class, 'create'])->name('planting.form');
+Route::get('/tanam/{token}/terima-kasih', [PublicPlantingController::class, 'thanks'])->name('planting.thanks');
 Route::post('/tanam/{token}', [PublicPlantingController::class, 'store'])->middleware('throttle:10,1')->name('planting.store');
 
 Route::middleware('auth')->group(function () {
@@ -43,6 +44,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
         Route::resource('users', UserController::class)->except(['show']);
         Route::resource('planting-tokens', PlantingAccessTokenController::class)->parameters(['planting-tokens' => 'plantingToken']);
+        Route::get('/planting-tokens/{plantingToken}/records', [PlantingAccessTokenController::class, 'records'])->name('planting-tokens.records');
         Route::resource('plant-types', PlantTypeController::class)->parameters(['plant-types' => 'plantType']);
         Route::resource('agencies', AgencyController::class);
         Route::post('/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
