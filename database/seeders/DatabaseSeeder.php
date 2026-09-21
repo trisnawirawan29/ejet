@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AdminSetting;
 use App\Models\Agency;
 use App\Models\PlantingAccessToken;
 use App\Models\PlantType;
@@ -21,6 +22,15 @@ class DatabaseSeeder extends Seeder
         $user->forceFill(['email_verified_at' => now()])->save();
         $user->roles()->syncWithoutDetaching([$admin->id]);
 
+        AdminSetting::firstOrCreate(
+            ['key' => 'application_name'],
+            ['value' => AdminSetting::DEFAULT_APPLICATION_NAME],
+        );
+        AdminSetting::firstOrCreate(
+            ['key' => 'application_tagline'],
+            ['value' => AdminSetting::DEFAULT_APPLICATION_TAGLINE],
+        );
+
         $plantingToken = config('planting.access_token');
         PlantingAccessToken::updateOrCreate(
             ['token_hash' => hash('sha256', $plantingToken)],
@@ -39,5 +49,7 @@ class DatabaseSeeder extends Seeder
         ] as $agency) {
             Agency::firstOrCreate(['name' => $agency['name']], [...$agency, 'is_active' => true]);
         }
+
+        $this->call(DemoDataSeeder::class);
     }
 }
